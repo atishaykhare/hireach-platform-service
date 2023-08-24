@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+  app:
+    container_name: hireach_app
+    image: app_image
+    env_file:
+      - local.env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/src
+    ports:
+      - "5000:8080"
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:6
+    hostname: hireach
+    container_name: hireach_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - app_data:/data/db
+
+  redis:
+    image: redis:6.2-alpine
+    hostname: hireach
+    container_name: hireach_redis
+    command:
+      - 'redis-server'
+      - '--requirepass HireachRedis9909'
+    ports:
+      - 6379:6379
+
+volumes:
+  app_data:
+    driver: "local"
+
+networks:
+  default:
+    external: true
+    name: hireach
